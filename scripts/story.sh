@@ -7,7 +7,7 @@
 # whose shell and OpenCode both start in that worktree.
 set -euo pipefail
 
-JIRA_SITE="https://legogroup.atlassian.net"
+JIRA_SITE="${JIRA_SITE:-}"
 WORK_DIR="${STORY_WORK_DIR:-$HOME/work}"
 KEY_PATTERN='^[A-Z][A-Z0-9]*-[0-9]+$'
 MARKER_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/opencode-story"
@@ -19,6 +19,11 @@ fi
 
 if ! [[ "$key" =~ $KEY_PATTERN ]]; then
   echo "story: '${key}' is not a Jira key (expected e.g. IAG-657) and the branch has none." >&2
+  exit 2
+fi
+
+if [ -z "$JIRA_SITE" ]; then
+  echo "story: JIRA_SITE is not set (e.g. export JIRA_SITE=https://your-org.atlassian.net)." >&2
   exit 2
 fi
 

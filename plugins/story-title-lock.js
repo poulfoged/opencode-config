@@ -11,7 +11,7 @@ const markerDir = path.join(
 )
 
 export default {
-  id: "lego.story-title-lock",
+  id: "story-title-lock",
   async setup(ctx) {
     await ctx.session.hook("title", async (event) => {
       if (!fs.existsSync(path.join(markerDir, event.sessionID))) return

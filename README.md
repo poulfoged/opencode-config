@@ -153,7 +153,7 @@ Slash commands in [`commands/`](./commands/). Those that mark a session call a s
 
 | Command | Purpose | Script |
 |---|---|---|
-| `/story <KEY>` | Fetch a Jira story, create a worktree in `~/work/<KEY>/`, open a new cmux workspace, and start planning | `story.sh` |
+| `/story <KEY>` | Fetch a Jira story, create a worktree in `~/work/<KEY>/`, open a new cmux workspace, and start planning. Requires `JIRA_SITE` (e.g. `https://your-org.atlassian.net`) in the environment | `story.sh` |
 | `/pr` | Prefix session and cmux workspace title with `PR:` and colour it aqua | `mark.sh` |
 | `/done` | Prefix with `DONE:` and colour it green | `mark.sh` |
 | `/block` | Prefix with `BLOCK:` and colour it red | `mark.sh` |
@@ -170,7 +170,7 @@ Plugins in [`plugins/`](./plugins/), loaded through `"plugins": ["./plugins"]` i
 | `cmux-feed.js` | Bridges the OpenCode event bus to the cmux feed. Managed by cmux and carries a local patch |
 | `cmux-session.js` | Bridges session lifecycle events into cmux's session store. Managed by cmux |
 | `story-title-lock.js` | Keeps the session title set by `story.sh` |
-| `strip-thinking-block-binding.js` | Strips `thinking.block_binding` from outgoing requests for the gateway |
+| `strip-thinking-block-binding.js` | Strips `thinking.block_binding` from outgoing requests to gateways whose URL contains `genai` |
 
 `cmux-feed.js` and `cmux-session.js` are upgraded in place by cmux. Because `~/.config/opencode/plugins` is a symlink, upgrades appear as diffs in this repo; re-apply the local patch if needed.
 
