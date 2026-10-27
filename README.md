@@ -1,14 +1,19 @@
-# Development Skills Repository
+# OpenCode Config
 
-A collection of reusable development skills for OpenCode that enforce coding standards, architectural patterns, and best practices across projects.
+Personal OpenCode setup: skills, commands, scripts, and plugins. The folders mirror `~/.config/opencode/` and are symlinked into it.
 
 ## Overview
 
-This repository contains agent skills that provide consistent, enforceable guidelines for software development. Each skill is a self-contained set of rules, examples, and conventions that OpenCode can load and apply during development sessions.
+| Folder | Contents |
+|---|---|
+| [`skills/`](./skills/) | Agent skills that enforce coding standards, architectural patterns, and best practices |
+| [`commands/`](./commands/) | Slash commands (`/story`, `/pr`, `/done`, ...) |
+| [`scripts/`](./scripts/) | Shell scripts called by the commands |
+| [`plugins/`](./plugins/) | OpenCode plugins (cmux integration, session title handling) |
 
 ## Available Skills
 
-### [software-development](./software-development/)
+### [software-development](./skills/software-development/)
 Enforce language-agnostic software engineering principles — SOLID design, the Boy Scout principle, early returns, naming clarity, real types over primitives, value objects, exception handling, and encapsulation.
 
 **Coverage:**
@@ -26,7 +31,7 @@ Enforce language-agnostic software engineering principles — SOLID design, the 
 
 ---
 
-### [api-design](./api-design/)
+### [api-design](./skills/api-design/)
 
 Enforce API design standards for ASP.NET Core APIs including versioning strategy, status code declarations, TypedResults usage, ProblemDetails contracts, and response metadata.
 
@@ -47,7 +52,7 @@ Enforce API design standards for ASP.NET Core APIs including versioning strategy
 
 ---
 
-### [csharp-development](./csharp-development/)
+### [csharp-development](./skills/csharp-development/)
 Enforce C#/.NET-specific coding conventions — casing, project setup, using directives, CancellationToken propagation, IOptions<T> configuration, and syntax-level idioms. For language-agnostic design principles, see `software-development`.
 
 **Coverage:**
@@ -67,7 +72,7 @@ Enforce C#/.NET-specific coding conventions — casing, project setup, using dir
 
 ---
 
-### [testing-standards-and-skills](./testing-standards-and-skills/)
+### [testing-standards-and-skills](./skills/testing-standards-and-skills/)
 Enforce repository unit test standards for xUnit, Shouldly, naming, structure, and embedded test resources.
 
 **Coverage:**
@@ -84,7 +89,7 @@ Enforce repository unit test standards for xUnit, Shouldly, naming, structure, a
 
 ---
 
-### [feature-sliced-architecture](./feature-sliced-architecture/)
+### [feature-sliced-architecture](./skills/feature-sliced-architecture/)
 Structure ASP.NET Core applications around vertical feature folders with isolated dependency injection, feature boundaries, and shared infrastructure modules.
 
 **Coverage:**
@@ -100,7 +105,7 @@ Structure ASP.NET Core applications around vertical feature folders with isolate
 
 ---
 
-### [grill-me](./grill-me/)
+### [grill-me](./skills/grill-me/)
 Grill the user relentlessly about a plan, decision, or idea to stress-test their thinking.
 
 **Coverage:**
@@ -115,7 +120,7 @@ Grill the user relentlessly about a plan, decision, or idea to stress-test their
 
 ---
 
-### [concise-writing](./concise-writing/)
+### [concise-writing](./skills/concise-writing/)
 Enforce brevity in agent output, code comments, and markdown docs.
 
 **Coverage:**
@@ -128,7 +133,7 @@ Enforce brevity in agent output, code comments, and markdown docs.
 
 ---
 
-### [conventional-commits](./conventional-commits/)
+### [conventional-commits](./skills/conventional-commits/)
 Enforce Conventional Commits message format.
 
 **Coverage:**
@@ -142,47 +147,61 @@ Enforce Conventional Commits message format.
 
 ---
 
+## Available Commands
+
+Slash commands in [`commands/`](./commands/). Those that mark a session call a shared script in [`scripts/`](./scripts/).
+
+| Command | Purpose | Script |
+|---|---|---|
+| `/story <KEY>` | Fetch a Jira story, create a worktree in `~/work/<KEY>/`, open a new cmux workspace, and start planning | `story.sh` |
+| `/pr` | Prefix session and cmux workspace title with `PR:` and colour it aqua | `mark.sh` |
+| `/done` | Prefix with `DONE:` and colour it green | `mark.sh` |
+| `/block` | Prefix with `BLOCK:` and colour it red | `mark.sh` |
+| `/investigate` | Prefix with `INVESTIGATE:` and colour it amber | `mark.sh` |
+| `/prs` | Open the current repo's GitHub pull requests as a cmux browser tab | `prs.sh` |
+| `/check-skills` | Verify all skills against the current codebase | - |
+
+## Plugins
+
+Plugins in [`plugins/`](./plugins/), loaded through `"plugins": ["./plugins"]` in `opencode.jsonc`.
+
+| Plugin | Purpose |
+|---|---|
+| `cmux-feed.js` | Bridges the OpenCode event bus to the cmux feed. Managed by cmux and carries a local patch |
+| `cmux-session.js` | Bridges session lifecycle events into cmux's session store. Managed by cmux |
+| `story-title-lock.js` | Keeps the session title set by `story.sh` |
+| `strip-thinking-block-binding.js` | Strips `thinking.block_binding` from outgoing requests for the gateway |
+
+`cmux-feed.js` and `cmux-session.js` are upgraded in place by cmux. Because `~/.config/opencode/plugins` is a symlink, upgrades appear as diffs in this repo; re-apply the local patch if needed.
+
 ## Installation
 
-### Project-Level Installation
-
-Copy the desired skill folders to your project:
+Clone the repo and symlink each folder into the OpenCode config directory:
 
 ```bash
-# Create skills directory
+REPO=~/Projects/opencode-config
+mkdir -p ~/.config/opencode
+
+ln -s "$REPO/skills"   ~/.config/opencode/skills
+ln -s "$REPO/commands" ~/.config/opencode/commands
+ln -s "$REPO/scripts"  ~/.config/opencode/scripts
+ln -s "$REPO/plugins"  ~/.config/opencode/plugins
+```
+
+Commands reference scripts as `~/.config/opencode/scripts/<name>.sh`, so the `scripts` link is required for the commands to work. Restart OpenCode after linking `plugins`.
+
+Plugins may only import Node built-ins. Node resolves imports from the real path inside this repo, so packages in `~/.config/opencode/node_modules` are not found.
+
+### Project-Level Skills
+
+To use a skill in a single project instead, copy it into the project:
+
+```bash
 mkdir -p .opencode/skills
-
-# Copy skills you want to use
-cp -r /path/to/this/repo/software-development .opencode/skills/
-cp -r /path/to/this/repo/api-design .opencode/skills/
-cp -r /path/to/this/repo/csharp-development .opencode/skills/
-cp -r /path/to/this/repo/testing-standards-and-skills .opencode/skills/
-cp -r /path/to/this/repo/feature-sliced-architecture .opencode/skills/
-cp -r /path/to/this/repo/grill-me .opencode/skills/
-cp -r /path/to/this/repo/concise-writing .opencode/skills/
-cp -r /path/to/this/repo/conventional-commits .opencode/skills/
+cp -r "$REPO/skills/software-development" .opencode/skills/
 ```
 
-### Global Installation
-
-Install skills globally for use across all projects:
-
-```bash
-# Create global skills directory
-mkdir -p ~/.config/opencode/skills
-
-# Copy skills
-cp -r /path/to/this/repo/software-development ~/.config/opencode/skills/
-cp -r /path/to/this/repo/api-design ~/.config/opencode/skills/
-cp -r /path/to/this/repo/csharp-development ~/.config/opencode/skills/
-cp -r /path/to/this/repo/testing-standards-and-skills ~/.config/opencode/skills/
-cp -r /path/to/this/repo/feature-sliced-architecture ~/.config/opencode/skills/
-cp -r /path/to/this/repo/grill-me ~/.config/opencode/skills/
-cp -r /path/to/this/repo/concise-writing ~/.config/opencode/skills/
-cp -r /path/to/this/repo/conventional-commits ~/.config/opencode/skills/
-```
-
-### Alternative Paths
+### Alternative Skill Paths
 
 OpenCode also searches these locations:
 - `.claude/skills/<name>/SKILL.md`
@@ -201,7 +220,7 @@ Skills are loaded on-demand—the agent sees available skills and loads the full
 Each skill follows this structure:
 
 ```
-skill-name/
+skills/skill-name/
 ├── SKILL.md       # Main skill definition with YAML frontmatter
 └── README.md      # Optional: Skill-specific documentation
 ```
@@ -231,7 +250,7 @@ metadata:
 
 To create a new skill:
 
-1. Create a directory with a valid skill name (lowercase, alphanumeric, hyphens only)
+1. Create a directory under `skills/` with a valid skill name (lowercase, alphanumeric, hyphens only)
 2. Add a `SKILL.md` file with proper YAML frontmatter
 3. Include clear sections: "What I do", "When to use me", and detailed rules
 4. Provide concrete examples (good and bad)
@@ -245,15 +264,22 @@ To create a new skill:
 - No consecutive `--`
 - Regex: `^[a-z0-9]+(-[a-z0-9]+)*$`
 
+## Creating New Commands
+
+1. Add `commands/<name>.md` with `description` frontmatter (and optionally `agent` and `model`).
+2. If the command needs a shell script, add it to `scripts/`, make it executable, and call it as `~/.config/opencode/scripts/<name>.sh`.
+3. Keep scripts independent of their own location (no `$0` or `BASH_SOURCE` path lookups).
+4. Add the command to the table above.
+
 ## Contributing
 
-When adding or modifying skills:
+When adding or modifying skills, commands, scripts, or plugins:
 
 1. Follow the established structure and formatting
 2. Provide clear, actionable rules
 3. Include concrete examples
 4. Test the skill with OpenCode before committing
-5. Update this README with new skills
+5. Update this README with new skills, commands, scripts, or plugins
 
 ## Philosophy
 
