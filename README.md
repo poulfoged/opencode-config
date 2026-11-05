@@ -154,10 +154,11 @@ Slash commands in [`commands/`](./commands/). Those that mark a session call a s
 | Command | Purpose | Script |
 |---|---|---|
 | `/story <KEY>` | Fetch a Jira story, create a worktree in `~/work/<KEY>/`, open a new cmux workspace, and start planning. Requires `JIRA_SITE` (e.g. `https://your-org.atlassian.net`) in the environment | `story.sh` |
+| `/release <version>` | Create a worktree in `~/work/<version>/` on branch `release/<version>` from the current HEAD, open a new cmux workspace, and name the session `RELEASE: <version>` (purple) | `release.sh` |
 | `/pr` | Prefix session and cmux workspace title with `PR:` and colour it aqua | `mark.sh` |
 | `/done` | Prefix with `DONE:` and colour it green | `mark.sh` |
 | `/block` | Prefix with `BLOCK:` and colour it red | `mark.sh` |
-| `/investigate` | Prefix with `INVESTIGATE:` and colour it amber | `mark.sh` |
+| `/investigate [topic]` | Prefix with `INVESTIGATE:`, colour it amber and set a title deduced from the topic or conversation. With a topic, switch to plan mode and start investigating it | `mark.sh` |
 | `/prs` | Open the current repo's GitHub pull requests as a cmux browser tab | `prs.sh` |
 | `/check-skills` | Verify all skills against the current codebase | - |
 

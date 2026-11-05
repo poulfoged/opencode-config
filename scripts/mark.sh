@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
-# Usage: mark.sh <PREFIX> <COLOUR>   e.g. mark.sh PR Aqua
+# Usage: mark.sh <PREFIX> <COLOUR> [TITLE]   e.g. mark.sh PR Aqua
 # Prefixes the cmux workspace and OpenCode session title with "<PREFIX>: "
 # (replacing any existing upper-case prefix such as "STORY: " or "BLOCK: ") and
 # colours the cmux workspace. Example: "BLOCK: IAG-653: Hydrator" -> "PR: IAG-653: Hydrator".
+# With TITLE, the text after the prefix is replaced, keeping a leading ticket key:
+# mark.sh PR Aqua "Slow startup" turns "BLOCK: IAG-653: Hydrator" into "PR: IAG-653: Slow startup".
 set -euo pipefail
 
 prefix="${1:-}"
 color="${2:-}"
+new_title="${3:-}"
 if ! [[ "$prefix" =~ ^[A-Z][A-Z\ ]*$ ]] || [ -z "$color" ]; then
-  echo "usage: mark.sh <UPPERCASE PREFIX> <cmux colour name>" >&2
+  echo "usage: mark.sh <UPPERCASE PREFIX> <cmux colour name> [TITLE]" >&2
   exit 2
 fi
 
@@ -48,6 +51,16 @@ done
 if [ -z "$base" ]; then
   echo "mark: no workspace or session title found to rename." >&2
   exit 1
+fi
+
+if [ -n "$new_title" ]; then
+  new_title="$(strip_prefix "$new_title")"
+  if [ -n "$new_title" ]; then
+    if [[ "$base" =~ $KEY_PREFIX ]]; then
+      new_title="${BASH_REMATCH[0]}: $new_title"
+    fi
+    base="$new_title"
+  fi
 fi
 
 title="$prefix: $base"
