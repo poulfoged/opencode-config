@@ -161,6 +161,7 @@ Slash commands in [`commands/`](./commands/). Those that mark a session call a s
 | `/investigate [topic]` | Prefix with `INVESTIGATE:`, colour it amber and set a title deduced from the topic or conversation. With a topic, switch to plan mode and start investigating it | `mark.sh` |
 | `/prs` | Open the current repo's GitHub pull requests as a cmux browser tab | `prs.sh` |
 | `/check-skills` | Verify all skills against the current codebase | - |
+| `/handoff` | Write a pasteable handoff (goal, decisions, rejected options, key facts, next step) for continuing in a new chat | - |
 
 ## Plugins
 
